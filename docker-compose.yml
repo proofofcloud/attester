@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  attester:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ghcr.io/${GITHUB_REPOSITORY:-alexzaidelson/scrt/attester}:latest
+    container_name: sgx-attester
+    restart: unless-stopped
+    
+    # SGX requires specific device access and capabilities
+    devices:
+      - /dev/sgx_enclave:/dev/sgx_enclave
+      - /dev/sgx_provision:/dev/sgx_provision
+    
+    # Required for SGX operations
+    cap_add:
+      - SYS_RAWIO
+    
+    # Mount host directories if needed for SGX
+    volumes:
+      - /var/run/aesmd:/var/run/aesmd:ro
+    
+    # Environment variables for SGX configuration
+    environment:
+      - SGX_MODE=HW
+      - SGX_DEBUG=0
+    
+    # Uncomment and modify these if your application needs network access
+    # ports:
+    #   - "8080:8080"
+    
+    # Uncomment if you need to override the default command
+    # command: ["./attester", "--your-args"]
+
+# Optional: Add a development override
+# Create a docker-compose.override.yml file for development-specific settings
