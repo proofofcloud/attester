@@ -34,7 +34,7 @@
 SGX_SDK ?= /opt/intel/sgxsdk
 SGX_MODE ?= HW
 SGX_ARCH ?= x64
-SGX_DEBUG ?= 1
+SGX_DEBUG ?= 0
 
 include $(SGX_SDK)/buildenv.mk
 
@@ -155,7 +155,6 @@ Enclave_Cpp_Objects := $(sort $(Enclave_Cpp_Files:.cpp=.o))
 Enclave_Name := enclave.so
 Signed_Enclave_Name := enclave.signed.so
 Enclave_Config_File := Enclave/Enclave.config.xml
-Enclave_Test_Key := Enclave/Enclave_private_test.pem
 
 ifeq ($(SGX_MODE), HW)
 ifeq ($(SGX_DEBUG), 1)
@@ -180,17 +179,6 @@ endif
 all: .config_$(Build_Mode)_$(SGX_ARCH)
 	@$(MAKE) target
 
-ifeq ($(Build_Mode), HW_RELEASE)
-target:  $(App_Name) $(Enclave_Name)
-	@echo "The project has been built in release hardware mode."
-	@echo "Please sign the $(Enclave_Name) first with your signing key before you run the $(App_Name) to launch and access the enclave."
-	@echo "To sign the enclave use the command:"
-	@echo "   $(SGX_ENCLAVE_SIGNER) sign -key <your key> -enclave $(Enclave_Name) -out <$(Signed_Enclave_Name)> -config $(Enclave_Config_File)"
-	@echo "You can also sign the enclave using an external signing tool."
-	@echo "To build the project in simulation mode set SGX_MODE=SIM. To build the project in prerelease mode set SGX_PRERELEASE=1 and SGX_MODE=HW."
-
-
-else
 target: $(App_Name) $(Signed_Enclave_Name)
 ifeq ($(Build_Mode), HW_DEBUG)
 	@echo "The project has been built in debug hardware mode."
@@ -202,8 +190,6 @@ else ifeq ($(Build_Mode), SIM_PRERELEASE)
 	@echo "The project has been built in pre-release simulation mode."
 else
 	@echo "The project has been built in release simulation mode."
-endif
-
 endif
 
 run: all
@@ -235,6 +221,7 @@ App/%.o: App/%.cpp  App/Enclave_u.h
 $(App_Name): App/Enclave_u.o $(App_Cpp_Objects)
 	@$(CXX) $^ -o $@ $(App_Link_Flags)
 	@echo "LINK =>  $@"
+	strip $@
 
 ######## Enclave Objects ########
 
@@ -258,12 +245,7 @@ $(Enclave_Name): Enclave/Enclave_t.o $(Enclave_Cpp_Objects)
 	strip $@
 
 $(Signed_Enclave_Name): $(Enclave_Name)
-ifeq ($(wildcard $(Enclave_Test_Key)),)
-	@echo "There is no enclave test key<Enclave_private_test.pem>."
-	@echo "The project will generate a key<Enclave_private_test.pem> for test."
-	@openssl genrsa -out $(Enclave_Test_Key) -3 3072
-endif
-	@$(SGX_ENCLAVE_SIGNER) sign -key $(Enclave_Test_Key) -enclave $(Enclave_Name) -out $@ -config $(Enclave_Config_File)
+	@$(SGX_ENCLAVE_SIGNER) sign -key Enclave/Enclave_private.pem -enclave $(Enclave_Name) -out $@ -config $(Enclave_Config_File)
 	@echo "SIGN =>  $@"
 
 .PHONY: clean
