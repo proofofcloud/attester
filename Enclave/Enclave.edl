@@ -1,0 +1,14 @@
+enclave {
+
+
+    trusted {
+
+        public sgx_status_t ecall_get_report(
+            [in, count=512] const uint8_t* pTrgInfo,
+            [in, count=64] const uint8_t* pReportData,
+            [out, count=432] uint8_t* pReport
+        );
+
+    };
+
+};
