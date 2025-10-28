@@ -22,4 +22,4 @@ docker run \
 
 
 
-   (replace beefdeed with your challenge)
+   (replace _beefdeed_ with your challenge)
