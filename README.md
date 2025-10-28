@@ -5,7 +5,7 @@ A minimalistic tool that does those things:
  - Verifies an arbitrary quote, prints quote measurements, and fetches the unique platform identifier
 
 # How to run
-'''
+```
 git clone https://github.com/proofofcloud/attester
 
 
@@ -23,4 +23,4 @@ docker run \
 
 
    (replace _beefdeed_ with your challenge)
-'''
+```
