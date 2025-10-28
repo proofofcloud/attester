@@ -23,3 +23,9 @@ docker run \
 
 (replace _beefdeed_ with your challenge)
 ```
+
+# Output
+The output of the get command contains the following: 
+ - Raw quote
+ - Quote verification report
+ - PPID of the machine
