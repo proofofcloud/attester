@@ -21,6 +21,5 @@ docker run \
    -v /etc/sgx_default_qcnl.conf:/etc/sgx_default_qcnl.conf:ro \
    --rm attester get beefdeed
 
-
-   (replace _beefdeed_ with your challenge)
+(replace _beefdeed_ with your challenge)
 ```
