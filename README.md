@@ -4,7 +4,7 @@ A minimalistic tool that does those things:
  - Obtains an SGX DCAP quote (a.k.a. remote attestation), with the specified challenge embedded as report data
  - Verifies an arbitrary quote, prints quote measurements, and fetches the unique platform identifier
 
-# How to run
+# How to use
 ```
 git clone https://github.com/proofofcloud/attester
 
