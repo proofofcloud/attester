@@ -8,12 +8,9 @@ A minimalistic tool that does those things:
 ```
 git clone https://github.com/proofofcloud/attester
 
-
 cd attester
 
-
 docker build -t attester .
-
 
 docker run \
    --device /dev/sgx_enclave \
