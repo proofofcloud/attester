@@ -6,7 +6,7 @@ A minimalistic tool that does those things:
 
 # How to use
 ```
-docker run \
+sudo docker run \
     --device /dev/sgx_enclave \
     --device /dev/sgx_provision \
     -v /etc/sgx_default_qcnl.conf:/etc/sgx_default_qcnl.conf:ro \
