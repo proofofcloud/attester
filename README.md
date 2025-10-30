@@ -6,17 +6,12 @@ A minimalistic tool that does those things:
 
 # How to use
 ```
-git clone https://github.com/proofofcloud/attester
-
-cd attester
-
-docker build -t attester .
-
 docker run \
-   --device /dev/sgx_enclave \
-   --device /dev/sgx_provision \
-   -v /etc/sgx_default_qcnl.conf:/etc/sgx_default_qcnl.conf:ro \
-   --rm attester get beefdeed
+    --device /dev/sgx_enclave \
+    --device /dev/sgx_provision \
+    -v /etc/sgx_default_qcnl.conf:/etc/sgx_default_qcnl.conf:ro \
+    --rm \
+    ghcr.io/proofofcloud/attester@sha256:c723f206e1cd16cf6ec4dd04f37249f378edcf9cce7955ba826402b6812b9989 get beefdeed
 
 (replace _beefdeed_ with your challenge)
 ```
