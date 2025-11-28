@@ -57,6 +57,7 @@ RUN apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
+COPY sgx_default_qcnl.conf /etc/sgx_default_qcnl.conf
 COPY --from=builder /app/app attester
 COPY --from=builder /app/enclave.signed.so enclave.signed.so
 
