@@ -373,43 +373,131 @@ void CheckQuote(const uint8_t* pQuote, uint32_t nQuote)
     ms.m_p = pQuote;
     ms.m_n = nQuote;
 
-    const auto& q = ms.Skip_As<sgx_quote_t>();
-
-    printf("\tversion = %u\n", q.version);
-    printf("\tsign_type = %u\n", q.sign_type);
-
-    if (q.version == 3)
+#pragma pack (push, 1)
+    struct QuoteBase
     {
-        printf("\tepid_group_id = "); PrintHex_T(q.epid_group_id); printf("\n");
-        printf("\tqe_svn = %u\n", q.qe_svn);
-        printf("\tpce_svn = %u\n", q.pce_svn);
-        printf("\txeid = "); PrintHex_T(q.xeid); printf("\n");
-        printf("\tbasename = "); PrintHex_T(q.basename); printf("\n");
+        uint16_t version;
+        uint16_t sign_type;
+    };
 
-        const auto& body = q.report_body;
-        printf("\treport_body\n");
+    struct tdx_quote_hdr_t {
+        uint16_t version;
+        uint16_t key_type;
+        uint32_t tee_type;
+        uint16_t qe_svn;
+        uint16_t pce_svn;
+        uint8_t qe_vendor_id[16];
+        uint8_t user_data[20];
+    };
 
-        printf("\t\tmr_enclave = "); PrintHex_T(body.mr_enclave); printf("\n");
-        printf("\t\tmr_signer = "); PrintHex_T(body.mr_signer); printf("\n");
-        printf("\t\treport_data = "); PrintHex_T(body.report_data); printf("\n");
+    struct tdx_report_body_t
+    {
+        uint8_t tcb_svn [16];
+        uint8_t mr_seam [48];
+        uint8_t mr_signer_seam [48];
+        uint8_t seam_attributes [8];
+        uint8_t td_attributes [8];
+        uint8_t xfam [8];
+        uint8_t mr_td [48];
+        uint8_t mr_config_id [48];
+        uint8_t mr_owner [48];
+        uint8_t mr_config [48];
+        uint8_t rtmr0 [48];
+        uint8_t rtmr1 [48];
+        uint8_t rtmr2 [48];
+        uint8_t rtmr3 [48];
+        uint8_t report_data [64];
+    };
 
-        printf("\t\tcpu_svn = "); PrintHex_T(body.cpu_svn); printf("\n");
-        printf("\t\tmisc_select = "); PrintHex_T(body.misc_select); printf("\n");
-        printf("\t\tisv_ext_prod_id = "); PrintHex_T(body.isv_ext_prod_id); printf("\n");
-        printf("\t\tattributes = "); PrintHex_T(body.attributes); printf("\n");
-        printf("\t\tconfig_id = "); PrintHex_T(body.config_id); printf("\n");
-        printf("\t\tisv_prod_id = %u\n", body.isv_prod_id);
-        printf("\t\tisv_svn = %u\n", body.isv_svn);
-        printf("\t\tconfig_svn = %u\n", body.config_svn);
-        printf("\t\tisv_family_id"); PrintHex_T(body.isv_family_id); printf("\n");
+    struct tdx_quote_t {
+        tdx_quote_hdr_t header;
+        tdx_report_body_t report_body;
+        uint32_t signature_len;
+    };    
+#pragma pack (pop)
+
+    ms.EnsureHave(sizeof(QuoteBase));
+    const auto& q0 = *(const QuoteBase*) ms.m_p;
+   
+
+    printf("\tversion = %u\n", q0.version);
+    printf("\tsign_type = %u\n", q0.sign_type);
+
+    switch (q0.version)
+    {
+    case 3:
+        {
+            const auto& q = ms.Skip_As<sgx_quote_t>();
+
+            printf("\tepid_group_id = "); PrintHex_T(q.epid_group_id); printf("\n");
+            printf("\tqe_svn = %u\n", q.qe_svn);
+            printf("\tpce_svn = %u\n", q.pce_svn);
+            printf("\txeid = "); PrintHex_T(q.xeid); printf("\n");
+            printf("\tbasename = "); PrintHex_T(q.basename); printf("\n");
+
+            const auto& body = q.report_body;
+            printf("\tSGX report_body\n");
+
+            printf("\t\tmr_enclave = "); PrintHex_T(body.mr_enclave); printf("\n");
+            printf("\t\tmr_signer = "); PrintHex_T(body.mr_signer); printf("\n");
+            printf("\t\treport_data = "); PrintHex_T(body.report_data); printf("\n");
+
+            printf("\t\tcpu_svn = "); PrintHex_T(body.cpu_svn); printf("\n");
+            printf("\t\tmisc_select = "); PrintHex_T(body.misc_select); printf("\n");
+            printf("\t\tisv_ext_prod_id = "); PrintHex_T(body.isv_ext_prod_id); printf("\n");
+            printf("\t\tattributes = "); PrintHex_T(body.attributes); printf("\n");
+            printf("\t\tconfig_id = "); PrintHex_T(body.config_id); printf("\n");
+            printf("\t\tisv_prod_id = %u\n", body.isv_prod_id);
+            printf("\t\tisv_svn = %u\n", body.isv_svn);
+            printf("\t\tconfig_svn = %u\n", body.config_svn);
+            printf("\t\tisv_family_id"); PrintHex_T(body.isv_family_id); printf("\n");
+
+            ms.EnsureHave(q.signature_len);
+            ms.m_n = q.signature_len;
+
+            ms.Skip_As<sgx_ql_ecdsa_sig_data_t>();
+
+        }
+        break;
+
+    case 4:
+        {
+            const auto& q = ms.Skip_As<tdx_quote_t>();
+            printf("\tqe_svn = %u\n", q.header.qe_svn);
+            printf("\tpce_svn = %u\n", q.header.pce_svn);
+
+            const auto& body = q.report_body;
+            printf("\tTDX report_body\n");
+
+            printf("\t\ttcb_svn = "); PrintHex_T(body.tcb_svn); printf("\n");
+            printf("\t\tmr_seam = "); PrintHex_T(body.mr_seam); printf("\n");
+            printf("\t\tmr_signer_seam = "); PrintHex_T(body.mr_signer_seam); printf("\n");
+            printf("\t\tseam_attributes = "); PrintHex_T(body.seam_attributes); printf("\n");
+            printf("\t\ttd_attributes = "); PrintHex_T(body.td_attributes); printf("\n");
+            printf("\t\txfam = "); PrintHex_T(body.xfam); printf("\n");
+
+            printf("\t\tmr_td = "); PrintHex_T(body.mr_td); printf("\n");
+            printf("\t\tmr_config_id = "); PrintHex_T(body.mr_config_id); printf("\n");
+            printf("\t\tmr_owner = "); PrintHex_T(body.mr_owner); printf("\n");
+            printf("\t\tmr_config = "); PrintHex_T(body.mr_config); printf("\n");
+            printf("\t\trtmr0 = "); PrintHex_T(body.rtmr0); printf("\n");
+            printf("\t\trtmr1 = "); PrintHex_T(body.rtmr1); printf("\n");
+            printf("\t\trtmr2 = "); PrintHex_T(body.rtmr2); printf("\n");
+            printf("\t\trtmr3 = "); PrintHex_T(body.rtmr3); printf("\n");
+            printf("\t\treport_data = "); PrintHex_T(body.report_data); printf("\n");
+
+            ms.EnsureHave(q.signature_len);
+            ms.m_n = q.signature_len;
+
+            ms.Skip(sizeof(sgx_ql_ecdsa_sig_data_t) + 6);
+        }
+        break;
+
+    default:
+        return;
     }
 
     printf("Analyzing certificate chain...\n");
-
-    /*const auto& ecdsa_sig =*/ ms.Skip_As<sgx_ql_ecdsa_sig_data_t>();
-
-    ms.EnsureHave(q.signature_len - (uint32_t) sizeof(sgx_ql_ecdsa_sig_data_t));
-    ms.m_n = q.signature_len;
 
     const auto& ql_auth = ms.Skip_As<sgx_ql_auth_data_t>();
     ms.Skip(ql_auth.size);
