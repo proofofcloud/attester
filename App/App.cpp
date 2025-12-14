@@ -534,7 +534,18 @@ void CheckQuote(const uint8_t* pQuote, uint32_t nQuote)
     printf("PPID: ");
     PrintHex(ms.m_p, ms.m_n);
     printf("\n");
+
+    static const uint8_t ppid_inner_oid[] = {
+        0x06, 0x0A, 0x2A, 0x86, 0x48, 0x86, 0xF8, 0x4D, 0x01, 0x0D, 0x01, 0x01
+    };
     
+    ms = FindAsn1Value(ms, ppid_inner_oid, sizeof(ppid_inner_oid));
+    if (ms.m_p)
+    {
+        printf("Machine-ID: ");
+        PrintHex(ms.m_p, ms.m_n);
+        printf("\n");
+    }
 }
 
 int SGX_CDECL main(int argc, char *argv[])
