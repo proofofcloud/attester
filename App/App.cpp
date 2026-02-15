@@ -337,6 +337,7 @@ void CheckQuote(const uint8_t* pQuote, uint32_t nQuote)
     uint8_t* pColl = nullptr;
     uint32_t nColl = 0;
     auto qret_coll = tee_qv_get_collateral(pQuote, nQuote, &pColl, &nColl);
+    TestRet(qret_coll, "tee_qv_get_collateral");
 
     TestRet(sgx_qv_set_enclave_load_policy(sgx_ql_request_policy_t::SGX_QL_PERSISTENT), "sgx_qv_set_enclave_load_policy");
 
@@ -358,7 +359,6 @@ void CheckQuote(const uint8_t* pQuote, uint32_t nQuote)
         (vSupp.empty() ? nullptr : vSupp.data())
     ), "sgx_qv_verify_quote");
 
-    TestRet(qret_coll, "tee_qv_get_collateral");
 
     auto szQvRes = ParseQvRes(qvRes);
     if (szQvRes)
@@ -546,6 +546,44 @@ void CheckQuote(const uint8_t* pQuote, uint32_t nQuote)
         PrintHex(ms.m_p, ms.m_n);
         printf("\n");
     }
+    
+    const auto& ch = *(const sgx_ql_qve_collateral_t*) pColl;
+
+    // printf("TCB: ");
+    // fwrite(ch.tcb_info, 1, ch.tcb_info_size, stdout);
+    // printf("\n");
+
+    // find fmspc
+    const char szPrefix[] = "\"fmspc\"";
+
+    for (const char* szPos = ch.tcb_info; ; )
+    {
+        sz1 = strstr(szPos, szPrefix);
+        if (!sz1)
+            break;
+
+        sz1 += sizeof(szPrefix) - 1;
+        szPos = sz1;
+
+        if (!(sz1 = strchr(sz1, ':')))
+            continue;
+        sz1++;
+
+        if (!(sz1 = strchr(sz1, '\"')))
+            continue;
+        sz1++;
+
+        const char* sz2 = strchr(sz1, '\"');
+        if (!sz2)
+            continue;
+
+        printf("FMSPC: ");
+        fwrite(sz1, 1, sz2 - sz1, stdout);
+        printf("\n");
+
+        break;
+    }
+
 }
 
 int SGX_CDECL main(int argc, char *argv[])
