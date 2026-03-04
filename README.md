@@ -31,12 +31,14 @@ The output of the get command contains the following:
 ```
 Expected output: 
 
+```
 quote_valid: yes|no
-
 challenge_match: yes|no
-
 machine_id: \<machineID extracted from quote\>
+```
 
+
+Alternatively, run the quote verification directly:
 
 ```
 docker run \
