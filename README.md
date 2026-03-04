@@ -34,7 +34,7 @@ Expected output:
 ```
 quote_valid: yes|no
 challenge_match: yes|no
-machine_id: \<machineID extracted from quote\>
+machine_id: <machineID extracted from quote>
 ```
 
 
