@@ -5,6 +5,7 @@ A minimalistic tool that does those things:
  - Verifies an arbitrary quote, prints quote measurements, and fetches the unique platform identifier
 
 # How to use
+## Generate a quote
 ```
 sudo docker run \
     --device /dev/sgx_enclave \
@@ -16,8 +17,16 @@ sudo docker run \
 (replace _beefdeed_ with your challenge)
 ```
 
-# Output
+### Output
 The output of the get command contains the following: 
  - Raw quote
  - Quote verification report
  - PPID of the machine
+
+## Verify a quote
+```
+docker run \
+    --rm \
+    ghcr.io/proofofcloud/attester@sha256:2ae052dd244ab12880bf7a77b6580a289761d10bb19764310e4c44bbd8c5f14c \
+    check "$QUOTE"
+```
