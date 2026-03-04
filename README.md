@@ -27,7 +27,6 @@ The output of the get command contains the following:
 
 ```
 ./verify.sh <attester output file> <expected challenge>
-
 ```
 Expected output: 
 
