@@ -10,7 +10,7 @@ sudo docker run \
     --device /dev/sgx_enclave \
     --device /dev/sgx_provision \
     --rm \
-    ghcr.io/proofofcloud/attester@sha256:856659bea241a70de6fc1e7524b84c74d58e2b04a8bf815c87055026ccbf4254 \
+    ghcr.io/proofofcloud/attester@sha256:2ae052dd244ab12880bf7a77b6580a289761d10bb19764310e4c44bbd8c5f14c \
     get beefdeed
 
 (replace _beefdeed_ with your challenge)
