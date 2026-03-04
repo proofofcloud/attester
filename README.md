@@ -1,4 +1,4 @@
-# Attester
+# Intel SGX/TDX Attester
 
 A minimalistic tool that does those things:
  - Obtains an SGX DCAP quote (a.k.a. remote attestation), with the specified challenge embedded as report data
@@ -24,6 +24,17 @@ The output of the get command contains the following:
  - PPID of the machine
 
 ## Verify a quote
+
+```
+./verify.sh <attester output file> <expected challenge>
+
+```
+Expected output: 
+quote_valid: yes|no
+challenge_match: yes|no
+machine_id: \<machineID extracted from quote\>
+
+
 ```
 docker run \
     --rm \
